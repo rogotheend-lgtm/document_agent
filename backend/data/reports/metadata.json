@@ -6,6 +6,21 @@
     "category": "산업 분석",
     "date": "2026-10-20",
     "description": "데모 동작 확인을 위한 가상 보고서입니다. 실제 투자 판단에 사용할 수 없습니다."
+  },
+  {
+    "id": "sample-game-2026",
+    "title": "2026 게임 산업 전망",
+    "publisher": "Demo Research",
+    "category": "산업 분석",
+    "date": "2026-10-20",
+    "description": "데모 동작 확인을 위한 가상 보고서입니다. 실제 투자 판단에 사용할 수 없습니다."
+  },
+  {
+    "id": "sample-battery-2026",
+    "title": "2026 이차전지 산업 전망",
+    "publisher": "Demo Research",
+    "category": "산업 분석",
+    "date": "2026-10-20",
+    "description": "데모 동작 확인을 위한 가상 보고서입니다. 실제 투자 판단에 사용할 수 없습니다."
   }
 ]
-

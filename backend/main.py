@@ -85,3 +85,33 @@ async def chat(payload: ChatRequest):
         sources=result.get("sources", []),
         model=app.state.deps.llm.model,
     )
+
+
+@app.post("/api/chat/baseline")
+async def baseline_chat(payload: ChatRequest):
+    """개선 전 비교용: Router와 검색 없이 보고서 전체를 Qwen에 전달한다."""
+    if not payload.report_id:
+        raise HTTPException(status_code=422, detail="Baseline은 보고서 선택이 필요합니다.")
+    report = get_report(payload.report_id)
+    if not report:
+        raise HTTPException(status_code=404, detail="보고서를 찾을 수 없습니다.")
+
+    answer = await app.state.deps.llm.chat([
+        {
+            "role": "system",
+            "content": (
+                "제공된 보고서를 바탕으로 질문에 한국어로 답하세요. "
+                "Markdown 기호 없이 간결하게 작성하세요."
+            ),
+        },
+        {
+            "role": "user",
+            "content": f"보고서:\n{report['content']}\n\n질문: {payload.message}",
+        },
+    ])
+    return {
+        "answer": answer,
+        "model": app.state.deps.llm.model,
+        "report_id": payload.report_id,
+        "version": "baseline",
+    }

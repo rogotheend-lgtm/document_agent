@@ -39,6 +39,7 @@
             <small>{{ message.role === 'user' ? 'YOU' : 'RESEARCH AGENT' }}</small>
             <p>{{ message.content }}</p>
             <span v-if="message.route" class="route">ROUTE · {{ message.route }}</span>
+            <p v-if="message.routeReason" class="route-reason">{{ message.routeReason }}</p>
             <details v-if="message.sources?.length">
               <summary>사용한 근거 {{ message.sources.length }}개</summary>
               <blockquote v-for="source in message.sources" :key="source.section">
@@ -61,4 +62,3 @@
   <script src="/static/app.js"></script>
 </body>
 </html>
-

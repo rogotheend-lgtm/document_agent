@@ -22,6 +22,7 @@ select, textarea { width:100%; background:#fffdf6; border:1px solid var(--ink); 
 .message.user { margin-left:auto; background:var(--ink); color:white; }
 .message.assistant { border-left:4px solid var(--lime); background:#f7f6ef; }
 .route { font-size:10px; font-weight:800; letter-spacing:.08em; color:#52772a; }
+.route-reason { margin:6px 0 0; color:#526059; font-size:12px; }
 details { margin-top:14px; }
 blockquote { margin:12px 0 0; padding:12px; border-left:2px solid #999; font-size:13px; }
 form { display:grid; grid-template-columns:1fr 120px; gap:10px; padding:18px; border-top:1px solid var(--ink); }
@@ -30,4 +31,3 @@ form button:disabled { opacity:.5; }
 .error { color:#a32626; padding:0 18px 14px; }
 .thinking { color:#52772a; }
 @media (max-width:760px) { main { grid-template-columns:1fr; } aside { display:none; } #app { padding:24px 14px; } .message { max-width:94%; } }
-

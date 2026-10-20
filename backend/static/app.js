@@ -26,10 +26,12 @@ createApp({
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.detail || '답변 생성에 실패했습니다.');
-        this.messages.push({ role: 'assistant', content: data.answer, route: data.route, sources: data.sources });
+        this.messages.push({
+          role: 'assistant', content: data.answer, route: data.route,
+          routeReason: data.route_reason, sources: data.sources,
+        });
       } catch (error) { this.error = error.message; }
       finally { this.loading = false; }
     },
   },
 }).mount('#app');
-

@@ -27,21 +27,53 @@ CLEAR_OUT_OF_SCOPE_PATTERNS = [
     # 서비스 내부 지시를 공개하거나 무시하라는 요청
     r"(시스템|개발자).*(프롬프트|메시지|지시).*(보여|출력|공개)",
     r"(이전|앞의|기존).*(지시|규칙).*(무시|잊어)",
+    r"(오늘|내일|이번 주)?.*날씨.*(알려|어때|예보)",
+    r"(저녁|점심|아침)?.*(메뉴|음식|맛집).*(추천|골라)",
 ]
+
+FINANCE_TERMS = (
+    "ebitda",
+    "per",
+    "pbr",
+    "roe",
+    "영업이익률",
+    "밸류에이션",
+    "변동성",
+)
+
+TERM_EXPLANATION_WORDS = ("뜻", "의미", "설명", "쉽게")
+
+
+def is_clear_out_of_scope(message: str) -> bool:
+    """LLM 없이 차단할 수 있는 명백한 생성·프롬프트 탈취 요청인지 확인한다."""
+    normalized_message = message.lower().strip()
+    return any(
+        re.search(pattern, normalized_message)
+        for pattern in CLEAR_OUT_OF_SCOPE_PATTERNS
+    )
+
+
+def is_term_explanation(message: str) -> bool:
+    normalized_message = message.lower().strip()
+    return (
+        any(term in normalized_message for term in FINANCE_TERMS)
+        and any(word in normalized_message for word in TERM_EXPLANATION_WORDS)
+    )
 
 
 
 async def router_node(state: AgentState, *, deps: AgentDeps) -> dict:
     """질문의 단어가 아니라 사용자의 의도를 기준으로 경로를 결정한다."""
-    normalized_message = state["message"].lower().strip()
-
-    if any(
-        re.search(pattern, normalized_message)
-        for pattern in CLEAR_OUT_OF_SCOPE_PATTERNS
-    ):
+    if is_clear_out_of_scope(state["message"]):
         return {
             "route": Route.OUT_OF_SCOPE,
             "route_reason": "리서치 보고서 분석과 무관한 명백한 생성 요청입니다.",
+            "needs_report": False,
+        }
+    if is_term_explanation(state["message"]):
+        return {
+            "route": Route.EXPLAIN_TERM,
+            "route_reason": "금융·산업 용어의 쉬운 설명을 요청했습니다.",
             "needs_report": False,
         }
     system_prompt = """
@@ -147,6 +179,7 @@ async def answer_node(state: AgentState, *, deps: AgentDeps) -> dict:
     prompt = """당신은 전문 리서치 보고서를 일반 사용자가 이해하기 쉽게 설명하는 도우미입니다.
 제공된 근거만 사용하고, 근거에 없는 사실은 추측하지 마세요.
 먼저 한 줄 결론을 말하고, 이어서 쉬운 설명을 2~4개 항목으로 작성하세요.
+Markdown 기호 없이 일반 텍스트로 답변하세요.
 투자 권유가 아니라 보고서 이해를 돕는 설명임을 지키세요."""
     if state["route"] == "explain_term":
         context = "선택된 문서가 없는 금융 용어 설명입니다. 일반적 정의만 간결하게 설명하세요."

@@ -6,6 +6,62 @@ from pathlib import Path
 
 DATA_DIR = Path(__file__).parent / "data" / "reports"
 
+TOKEN_ALIASES = {
+    "리스크": "위험",
+    "위험요인": "위험",
+    "위험요소": "위험",
+    "수익성": "이익",
+    "영업이익률": "이익",
+    "매출액": "매출",
+    "전망치": "전망",
+    "성장성": "성장",
+}
+
+SEARCH_STOPWORDS = {
+    "가장",
+    "주요",
+    "산업",
+    "섹터",
+    "전망",
+    "뭐야",
+    "알려줘",
+    "설명해줘",
+    "어떻게",
+}
+
+KOREAN_SUFFIXES = (
+    "에서",
+    "으로",
+    "에게",
+    "은",
+    "는",
+    "이",
+    "가",
+    "을",
+    "를",
+    "의",
+    "에",
+    "로",
+    "와",
+    "과",
+    "도",
+    "만",
+)
+
+
+def normalize_token(token: str) -> str:
+    for suffix in KOREAN_SUFFIXES:
+        if token.endswith(suffix) and len(token) > len(suffix) + 1:
+            token = token[: -len(suffix)]
+            break
+    return TOKEN_ALIASES.get(token, token)
+
+
+def tokenize(text: str) -> set[str]:
+    tokens = re.findall(r"[가-힣A-Za-z0-9]+", text.lower())
+    normalized = {normalize_token(token) for token in tokens}
+    return normalized - SEARCH_STOPWORDS
+
 
 @lru_cache(maxsize=1)
 def list_reports() -> list[dict]:
@@ -46,10 +102,10 @@ def search_report(report_id: str, query: str, limit: int = 3) -> list[dict]:
     report = get_report(report_id)
     if not report:
         return []
-    query_tokens = set(re.findall(r"[가-힣A-Za-z0-9]+", query.lower()))
+    query_tokens = tokenize(query)
     scored = []
     for section in split_sections(report["content"]):
-        text_tokens = set(re.findall(r"[가-힣A-Za-z0-9]+", section["content"].lower()))
+        text_tokens = tokenize(f"{section['section']} {section['content']}")
         score = len(query_tokens & text_tokens)
         scored.append((score, section))
     scored.sort(key=lambda item: item[0], reverse=True)
