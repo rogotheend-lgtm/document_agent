@@ -1,13 +1,12 @@
 import json
 import re
+from functools import partial
 from typing import TypedDict
 
 from langgraph.graph import END, START, StateGraph
-
-from backend.ollama import OLLAMA_MODEL, chat
-from backend.report_store import search_report
 from pydantic import ValidationError
 
+from backend.deps import AgentDeps
 from backend.schemas import Route, RouterDecision
 
 
@@ -32,7 +31,7 @@ CLEAR_OUT_OF_SCOPE_PATTERNS = [
 
 
 
-async def router_node(state: AgentState) -> dict:
+async def router_node(state: AgentState, *, deps: AgentDeps) -> dict:
     """질문의 단어가 아니라 사용자의 의도를 기준으로 경로를 결정한다."""
     normalized_message = state["message"].lower().strip()
 
@@ -81,7 +80,7 @@ async def router_node(state: AgentState) -> dict:
         f"사용자 질문: {state['message']}"
     )
 
-    raw_response = await chat(
+    raw_response = await deps.llm.chat(
         [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
@@ -121,18 +120,24 @@ async def router_node(state: AgentState) -> dict:
     }
 
 
-def retrieve_node(state: AgentState) -> dict:
-    return {"sources": search_report(state["report_id"], state["message"])}
+def retrieve_node(state: AgentState, *, deps: AgentDeps) -> dict:
+    return {
+        "sources": deps.search_report(
+            state["report_id"],
+            state["message"],
+            3,
+        )
+    }
 
 
-async def answer_node(state: AgentState) -> dict:
+async def answer_node(state: AgentState, *, deps: AgentDeps) -> dict:
     sources = state.get("sources", [])
 
     if state["route"] == Route.REPORT_QA and not sources:
         return {
             "answer": (
                 "선택한 보고서에서 이 질문에 답할 근거를 찾지 못했습니다. "
-                "게임 산업 보고서를 선택하거나, 현재 반도체 보고서에 관한 질문을 해주세요."
+                "질문과 관련된 보고서를 선택하거나 현재 보고서의 내용에 관해 질문해 주세요."
             )
         }
 
@@ -145,7 +150,7 @@ async def answer_node(state: AgentState) -> dict:
 투자 권유가 아니라 보고서 이해를 돕는 설명임을 지키세요."""
     if state["route"] == "explain_term":
         context = "선택된 문서가 없는 금융 용어 설명입니다. 일반적 정의만 간결하게 설명하세요."
-    answer = await chat([
+    answer = await deps.llm.chat([
         {"role": "system", "content": prompt},
         {"role": "user", "content": f"근거:\n{context}\n\n질문: {state['message']}"},
     ])
@@ -168,11 +173,11 @@ def choose_route(state: AgentState) -> str:
 
     return route
 
-def build_graph():
+def build_graph(deps: AgentDeps):
     graph = StateGraph(AgentState)
-    graph.add_node("router", router_node)
-    graph.add_node("retrieve", retrieve_node)
-    graph.add_node("answer", answer_node)
+    graph.add_node("router", partial(router_node, deps=deps))
+    graph.add_node("retrieve", partial(retrieve_node, deps=deps))
+    graph.add_node("answer", partial(answer_node, deps=deps))
     graph.add_node("refusal", refusal_node)
     graph.add_node("clarification", clarification_node)
     graph.add_edge(START, "router")
@@ -188,6 +193,3 @@ def build_graph():
     graph.add_edge("refusal", END)
     graph.add_edge("clarification", END)
     return graph.compile()
-
-
-AGENT = build_graph()

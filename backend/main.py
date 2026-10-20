@@ -9,17 +9,30 @@ from fastapi.staticfiles import StaticFiles
 
 load_dotenv()
 
-from backend.agent import AGENT
-from backend.ollama import OLLAMA_MODEL
-from backend.report_store import get_report, list_reports
+from backend.agent import build_graph
+from backend.deps import AgentDeps
+from backend.ollama import OLLAMA_MODEL, OLLAMA_URL, OllamaClient
+from backend.report_store import get_report, list_reports, search_report
 from backend.schemas import ChatRequest, ChatResponse
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # 그래프와 보고서 캐시는 프로세스 시작 시 한 번 만들어져 모든 요청이 공유한다.
-    app.state.agent = AGENT
-    yield
+    # 외부 자원과 Agent를 서버 시작 시 한 번 만들고 모든 요청에서 공유한다.
+    llm = OllamaClient(url=OLLAMA_URL, model=OLLAMA_MODEL)
+    deps = AgentDeps(llm=llm, search_report=search_report)
+    agent = build_graph(deps)
+
+    app.state.deps = deps
+    app.state.agent = agent
+    app.state.creation_count = getattr(app.state, "creation_count", 0) + 1
+    app.state.instance_id = id(agent)
+
+    try:
+        yield
+    finally:
+        # 서버 종료 시 공유 HTTP client의 연결 풀을 명시적으로 닫는다.
+        await llm.aclose()
 
 
 app = FastAPI(title="Research Report Agent", version="0.1.0", lifespan=lifespan)
@@ -34,7 +47,12 @@ def index():
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "model": OLLAMA_MODEL}
+    return {
+        "status": "ok",
+        "model": app.state.deps.llm.model,
+        "creation_count": app.state.creation_count,
+        "instance_id": app.state.instance_id,
+    }
 
 
 @app.get("/api/reports")
@@ -63,7 +81,7 @@ async def chat(payload: ChatRequest):
     return ChatResponse(
         answer=result["answer"],
         route=result["route"],
+        route_reason=result.get("route_reason", ""),
         sources=result.get("sources", []),
-        model=OLLAMA_MODEL,
+        model=app.state.deps.llm.model,
     )
-
