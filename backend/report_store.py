@@ -54,8 +54,6 @@ def search_report(report_id: str, query: str, limit: int = 3) -> list[dict]:
         scored.append((score, section))
     scored.sort(key=lambda item: item[0], reverse=True)
     chosen = [item[1] for item in scored[:limit] if item[0] > 0]
-    if not chosen:
-        chosen = [item[1] for item in scored[:1]]
     return [
         {
             "report_id": report_id,
@@ -65,4 +63,3 @@ def search_report(report_id: str, query: str, limit: int = 3) -> list[dict]:
         }
         for item in chosen
     ]
-
