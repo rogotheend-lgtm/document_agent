@@ -1,0 +1,33 @@
+:root { --ink:#14251f; --cream:#f3efe4; --lime:#c9f36a; --line:#c9c5b9; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--cream); color:var(--ink); font-family:Arial, "Apple SD Gothic Neo", sans-serif; }
+[v-cloak] { display:none; }
+#app { min-height:100vh; padding:42px clamp(22px,5vw,78px); }
+header { max-width:1050px; border-bottom:1px solid var(--ink); padding-bottom:30px; }
+.eyebrow, small { font-size:11px; font-weight:800; letter-spacing:.16em; }
+h1 { margin:12px 0; font:700 clamp(42px,6vw,82px)/.95 Georgia,serif; letter-spacing:-.055em; }
+h1 em { color:#52772a; font-weight:400; }
+.lead { max-width:620px; font-size:17px; line-height:1.6; }
+main { display:grid; grid-template-columns:280px 1fr; gap:42px; padding-top:34px; }
+aside label { display:block; margin-bottom:9px; font-weight:700; }
+select, textarea { width:100%; background:#fffdf6; border:1px solid var(--ink); padding:13px; color:var(--ink); }
+.guide { margin-top:35px; }
+.guide strong { display:block; margin-bottom:10px; }
+.guide button { display:block; width:100%; text-align:left; border:0; border-top:1px solid var(--line); background:transparent; padding:12px 0; cursor:pointer; }
+.chat { min-height:560px; display:flex; flex-direction:column; background:#fffdf6; border:1px solid var(--ink); }
+.messages { flex:1; padding:28px; overflow:auto; max-height:580px; }
+.empty span { display:inline-block; background:var(--lime); padding:8px; border-radius:50%; }
+.empty h2 { font:500 34px Georgia,serif; margin-bottom:8px; }
+.message { max-width:82%; margin:0 0 24px; padding:18px; white-space:pre-wrap; line-height:1.6; }
+.message.user { margin-left:auto; background:var(--ink); color:white; }
+.message.assistant { border-left:4px solid var(--lime); background:#f7f6ef; }
+.route { font-size:10px; font-weight:800; letter-spacing:.08em; color:#52772a; }
+details { margin-top:14px; }
+blockquote { margin:12px 0 0; padding:12px; border-left:2px solid #999; font-size:13px; }
+form { display:grid; grid-template-columns:1fr 120px; gap:10px; padding:18px; border-top:1px solid var(--ink); }
+form button { border:0; background:var(--lime); color:var(--ink); font-weight:800; cursor:pointer; }
+form button:disabled { opacity:.5; }
+.error { color:#a32626; padding:0 18px 14px; }
+.thinking { color:#52772a; }
+@media (max-width:760px) { main { grid-template-columns:1fr; } aside { display:none; } #app { padding:24px 14px; } .message { max-width:94%; } }
+

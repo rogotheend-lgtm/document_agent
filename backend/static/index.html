@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plain Research</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div id="app" v-cloak>
+    <header>
+      <p class="eyebrow">RESEARCH, MADE CLEAR</p>
+      <h1>전문 보고서를<br><em>대화로 이해하세요.</em></h1>
+      <p class="lead">등록된 리서치에 근거해 핵심을 쉽게 설명하고, 사용한 원문을 함께 보여드립니다.</p>
+    </header>
+
+    <main>
+      <aside>
+        <label for="report">분석 보고서</label>
+        <select id="report" v-model="reportId">
+          <option value="">보고서를 선택하세요</option>
+          <option v-for="report in reports" :key="report.id" :value="report.id">{{ report.title }}</option>
+        </select>
+        <div class="guide">
+          <strong>질문 예시</strong>
+          <button v-for="sample in samples" @click="question = sample">{{ sample }}</button>
+        </div>
+      </aside>
+
+      <section class="chat">
+        <div class="messages">
+          <div v-if="!messages.length" class="empty">
+            <span>01</span>
+            <h2>무엇이 궁금한가요?</h2>
+            <p>핵심 결론, 위험 요인, 전문 용어를 질문해 보세요.</p>
+          </div>
+          <article v-for="(message, index) in messages" :key="index" :class="['message', message.role]">
+            <small>{{ message.role === 'user' ? 'YOU' : 'RESEARCH AGENT' }}</small>
+            <p>{{ message.content }}</p>
+            <span v-if="message.route" class="route">ROUTE · {{ message.route }}</span>
+            <details v-if="message.sources?.length">
+              <summary>사용한 근거 {{ message.sources.length }}개</summary>
+              <blockquote v-for="source in message.sources" :key="source.section">
+                <strong>{{ source.section }}</strong>
+                <p>{{ source.content }}</p>
+              </blockquote>
+            </details>
+          </article>
+          <p v-if="loading" class="thinking">보고서를 읽고 답변을 구성하고 있습니다…</p>
+        </div>
+
+        <form @submit.prevent="ask">
+          <textarea v-model="question" maxlength="500" rows="2" placeholder="보고서에 관해 질문하세요"></textarea>
+          <button type="submit" :disabled="loading || question.trim().length < 2">{{ loading ? '분석 중' : '질문하기' }}</button>
+        </form>
+        <p v-if="error" class="error">{{ error }}</p>
+      </section>
+    </main>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
+
