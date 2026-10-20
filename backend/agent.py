@@ -7,7 +7,12 @@ from langgraph.graph import END, START, StateGraph
 from pydantic import ValidationError
 
 from backend.deps import AgentDeps
-from backend.schemas import Route, RouterDecision
+from backend.schemas import (
+    EvidenceDecision,
+    EvidenceStatus,
+    Route,
+    RouterDecision,
+)
 
 
 class AgentState(TypedDict, total=False):
@@ -17,6 +22,9 @@ class AgentState(TypedDict, total=False):
     route_reason: str
     needs_report: bool
     sources: list[dict]
+    evidence_status: EvidenceStatus
+    evidence_reason: str
+    evidence_confidence: float
     answer: str
 
 CLEAR_OUT_OF_SCOPE_PATTERNS = [
@@ -164,6 +172,58 @@ def retrieve_node(state: AgentState, *, deps: AgentDeps) -> dict:
     }
 
 
+async def evidence_check_node(state: AgentState, *, deps: AgentDeps) -> dict:
+    """검색 근거가 실제 질문을 뒷받침하는지 hybrid 방식으로 판정한다."""
+    sources = state.get("sources", [])
+    if not sources:
+        return {
+            "evidence_status": EvidenceStatus.UNSUPPORTED,
+            "evidence_reason": "선택한 보고서에서 질문과 겹치는 근거를 찾지 못했습니다.",
+            "evidence_confidence": 1.0,
+        }
+
+    max_score = max(source.get("relevance_score", 0) for source in sources)
+    if max_score >= 2:
+        return {
+            "evidence_status": EvidenceStatus.SUPPORTED,
+            "evidence_reason": "질문의 핵심어와 직접 일치하는 보고서 근거를 찾았습니다.",
+            "evidence_confidence": 0.9,
+        }
+
+    context = "\n\n".join(
+        f"[{source['section']}]\n{source['content']}" for source in sources
+    )
+    prompt = """당신은 보고서 근거 적합성 검사기입니다.
+질문에 답할 직접적인 정보가 근거에 있는지 판정하세요.
+단어가 하나 겹친다는 이유만으로 supported를 선택하지 마세요.
+근거가 질문과 무관하면 unsupported, 질문이 모호해 판단하기 어려우면 ambiguous입니다.
+JSON만 출력하세요.
+{"status":"supported","reason":"직접 근거가 있습니다.","confidence":0.9}"""
+    raw_response = await deps.llm.chat(
+        [
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": f"질문:\n{state['message']}\n\n근거:\n{context}"},
+        ],
+        temperature=0,
+    )
+    json_match = re.search(r"\{.*\}", raw_response, re.DOTALL)
+    try:
+        if not json_match:
+            raise ValueError("Evidence Checker 응답에서 JSON을 찾을 수 없습니다.")
+        decision = EvidenceDecision.model_validate_json(json_match.group(0))
+    except (ValidationError, ValueError, json.JSONDecodeError):
+        decision = EvidenceDecision(
+            status=EvidenceStatus.AMBIGUOUS,
+            reason="검색 근거의 적합성을 확실하게 판정하지 못했습니다.",
+            confidence=0.0,
+        )
+    return {
+        "evidence_status": decision.status,
+        "evidence_reason": decision.reason,
+        "evidence_confidence": decision.confidence,
+    }
+
+
 async def answer_node(state: AgentState, *, deps: AgentDeps) -> dict:
     sources = state.get("sources", [])
 
@@ -200,6 +260,28 @@ def clarification_node(_: AgentState) -> dict:
     return {"answer": "먼저 분석할 보고서를 선택하거나, 어떤 기업·산업·기간에 관한 질문인지 조금 더 구체적으로 알려주세요.", "sources": []}
 
 
+def unsupported_evidence_node(state: AgentState) -> dict:
+    return {
+        "answer": (
+            "선택한 보고서에서 이 질문에 답할 근거를 찾지 못했습니다. "
+            "질문과 관련된 보고서를 선택하거나 현재 보고서의 내용에 관해 질문해 주세요."
+        ),
+        "sources": [],
+        "evidence_reason": state.get("evidence_reason", "관련 근거가 없습니다."),
+    }
+
+
+def ambiguous_evidence_node(state: AgentState) -> dict:
+    return {
+        "answer": (
+            "검색된 내용만으로 질문에 정확히 답하기 어렵습니다. "
+            "궁금한 기업, 지표 또는 기간을 더 구체적으로 입력해 주세요."
+        ),
+        "sources": [],
+        "evidence_reason": state.get("evidence_reason", "근거 적합성이 모호합니다."),
+    }
+
+
 def choose_route(state: AgentState) -> str:
     route = state["route"]
 
@@ -208,13 +290,23 @@ def choose_route(state: AgentState) -> str:
 
     return route
 
+
+def choose_evidence_path(state: AgentState) -> str:
+    status = state["evidence_status"]
+    if isinstance(status, EvidenceStatus):
+        return status.value
+    return status
+
 def build_graph(deps: AgentDeps):
     graph = StateGraph(AgentState)
     graph.add_node("router", partial(router_node, deps=deps))
     graph.add_node("retrieve", partial(retrieve_node, deps=deps))
+    graph.add_node("evidence_check", partial(evidence_check_node, deps=deps))
     graph.add_node("answer", partial(answer_node, deps=deps))
     graph.add_node("refusal", refusal_node)
     graph.add_node("clarification", clarification_node)
+    graph.add_node("unsupported_evidence", unsupported_evidence_node)
+    graph.add_node("ambiguous_evidence", ambiguous_evidence_node)
     graph.add_edge(START, "router")
     graph.add_conditional_edges("router", choose_route, {
         "report_qa": "retrieve",
@@ -222,9 +314,16 @@ def build_graph(deps: AgentDeps):
         "clarification": "clarification",
         "out_of_scope": "refusal",
     })
-    graph.add_edge("retrieve", "answer")
+    graph.add_edge("retrieve", "evidence_check")
+    graph.add_conditional_edges("evidence_check", choose_evidence_path, {
+        "supported": "answer",
+        "unsupported": "unsupported_evidence",
+        "ambiguous": "ambiguous_evidence",
+    })
     graph.add_edge("answer", END)
 
     graph.add_edge("refusal", END)
     graph.add_edge("clarification", END)
+    graph.add_edge("unsupported_evidence", END)
+    graph.add_edge("ambiguous_evidence", END)
     return graph.compile()

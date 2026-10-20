@@ -12,6 +12,20 @@ class Route(str, Enum):
     OUT_OF_SCOPE = "out_of_scope"
 
 
+class EvidenceStatus(str, Enum):
+    """검색된 근거가 질문을 뒷받침하는 정도."""
+
+    SUPPORTED = "supported"
+    UNSUPPORTED = "unsupported"
+    AMBIGUOUS = "ambiguous"
+
+
+class EvidenceDecision(BaseModel):
+    status: EvidenceStatus
+    reason: str = Field(min_length=1, max_length=300)
+    confidence: float = Field(ge=0, le=1)
+
+
 class RouterDecision(BaseModel):
     """LLM Router가 반환해야 하는 구조화된 판단 결과."""
 
@@ -49,11 +63,15 @@ class Source(BaseModel):
     title: str
     section: str
     content: str
+    relevance_score: int = 0
 
 
 class ChatResponse(BaseModel):
     answer: str
     route: Route
     route_reason: str = ""
+    evidence_status: EvidenceStatus | None = None
+    evidence_reason: str = ""
+    evidence_confidence: float | None = None
     sources: list[Source] = Field(default_factory=list)
     model: str

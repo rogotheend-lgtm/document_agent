@@ -40,6 +40,11 @@
             <p>{{ message.content }}</p>
             <span v-if="message.route" class="route">ROUTE · {{ message.route }}</span>
             <p v-if="message.routeReason" class="route-reason">{{ message.routeReason }}</p>
+            <div v-if="message.evidenceStatus" class="evidence">
+              <strong>EVIDENCE · {{ message.evidenceStatus }}</strong>
+              <span v-if="message.evidenceConfidence !== null">{{ Math.round(message.evidenceConfidence * 100) }}%</span>
+              <p>{{ message.evidenceReason }}</p>
+            </div>
             <details v-if="message.sources?.length">
               <summary>사용한 근거 {{ message.sources.length }}개</summary>
               <blockquote v-for="source in message.sources" :key="source.section">

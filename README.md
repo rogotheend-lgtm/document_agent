@@ -20,9 +20,10 @@ Vue UI → FastAPI → Singleton LangGraph Agent
         ↓                ↓                  ↓
      retrieve          answer          clarify/refuse
         ↓
-   Evidence Gate
-     ├─ 근거 있음 → Qwen 답변 + 출처
-     └─ 근거 없음 → 안전한 안내
+   Evidence Checker
+     ├─ supported → Qwen 답변 + 출처
+     ├─ unsupported → 안전한 안내
+     └─ ambiguous → 질문 구체화 요청
 ```
 
 ## 핵심 기능
@@ -31,7 +32,7 @@ Vue UI → FastAPI → Singleton LangGraph Agent
 - Structured Router: Pydantic으로 Qwen의 경로·이유·보고서 필요 여부 검증
 - Hybrid Guard: 명백한 코드 생성·프롬프트 탈취 요청은 모델 호출 전에 차단
 - Mini RAG: 보고서를 섹션 단위로 검색하고 동의어를 정규화
-- Evidence Gate: 검색 근거가 없으면 Qwen 호출 전에 답변 중단
+- Hybrid Evidence Checker: 근거 없음·고점 검색은 규칙으로, 애매한 검색만 Qwen으로 판정
 - FastAPI lifespan: Agent와 Ollama HTTP client를 한 번 생성하고 종료 시 정리
 - Dependency Injection: LLM과 검색 함수를 `AgentDeps`로 graph node에 주입
 - Vue 3: 보고서 선택, 채팅, Route 선택 이유와 근거 표시
@@ -131,9 +132,9 @@ python evaluation/run_eval.py
 |---|---:|
 | Route 정확도 | 100% |
 | 근거 유무 판단 정확도 | 100% |
-| Improved 평균 지연 | 0.865초 |
-| Baseline 평균 지연 | 0.790초 |
-| 안전성 개선에 따른 추가 지연 | 0.075초 |
+| Improved 평균 지연 | 0.850초 |
+| Baseline 평균 지연 | 0.513초 |
+| 안전성 개선에 따른 추가 지연 | 0.337초 |
 
 첫 평가에서는 Route 75%, 근거 판단 90%였습니다. 실패 사례를 분석해 한국어 조사 정규화, 저정보 stopword 제거, 명백한 용어 설명·범위 밖 요청의 hybrid guard를 추가했습니다. 이후 새로운 개인 일정 질문에서 다시 실패해 한 글자 공통 token 제거와 회귀 테스트를 추가했고, 최종 21문항에서 100%를 기록했습니다. 이 수치는 작은 데모 데이터셋에 대한 결과이며 일반화 성능을 의미하지 않습니다.
 
@@ -154,6 +155,7 @@ python evaluation/run_eval.py
 - `qwen3:0.6b`는 가볍지만 복잡하거나 모호한 질문의 Route를 오분류할 수 있습니다.
 - 규칙 기반 조기 차단은 빠르지만 패턴을 지나치게 넓히면 정상 질문을 차단할 수 있습니다.
 - Router 호출 때문에 Baseline보다 응답 지연이 증가할 수 있습니다.
+- 검색 점수가 애매한 경우 Evidence Checker가 추가 LLM 호출을 사용합니다.
 - 표, 차트와 이미지의 정보는 아직 추출하지 않습니다.
 - 데모는 단일 선택 보고서 질문에 집중하며 다중 보고서 비교는 향후 기능입니다.
 

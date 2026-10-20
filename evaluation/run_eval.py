@@ -38,6 +38,8 @@ def run() -> None:
                 **case,
                 "improved_route": improved["route"],
                 "improved_sources": len(improved.get("sources", [])),
+                "evidence_status": improved.get("evidence_status"),
+                "evidence_confidence": improved.get("evidence_confidence"),
                 "improved_latency_seconds": round(improved_latency, 3),
                 "route_correct": improved["route"] == case["expected_route"],
                 "source_correct": bool(improved.get("sources")) == case["should_have_sources"],
@@ -70,4 +72,3 @@ def run() -> None:
 
 if __name__ == "__main__":
     run()
-

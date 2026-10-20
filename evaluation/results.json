@@ -1,11 +1,11 @@
 {
   "summary": {
-    "created_at": "2026-10-20T06:54:18.823363+00:00",
+    "created_at": "2026-10-20T06:57:47.613197+00:00",
     "case_count": 21,
     "route_accuracy": 1.0,
     "source_accuracy": 1.0,
-    "improved_average_latency_seconds": 0.865,
-    "baseline_average_latency_seconds": 0.79
+    "improved_average_latency_seconds": 0.85,
+    "baseline_average_latency_seconds": 0.513
   },
   "cases": [
     {
@@ -16,10 +16,12 @@
       "should_have_sources": true,
       "improved_route": "report_qa",
       "improved_sources": 1,
-      "improved_latency_seconds": 1.832,
+      "evidence_status": "supported",
+      "evidence_confidence": 0.9,
+      "improved_latency_seconds": 1.364,
       "route_correct": true,
       "source_correct": true,
-      "baseline_latency_seconds": 0.418,
+      "baseline_latency_seconds": 0.379,
       "baseline_answer": "반도체 시장의 핵심 결론은 AI 서버 투자와 고대역폭 메모리 수요가 성장을 이끌 것으로 예상됩니다."
     },
     {
@@ -30,11 +32,13 @@
       "should_have_sources": true,
       "improved_route": "report_qa",
       "improved_sources": 1,
-      "improved_latency_seconds": 1.715,
+      "evidence_status": "supported",
+      "evidence_confidence": 0.9,
+      "improved_latency_seconds": 2.208,
       "route_correct": true,
       "source_correct": true,
-      "baseline_latency_seconds": 0.234,
-      "baseline_answer": "메모리 업체의 생산능력 확대가 주요 위험으로 볼 수 있다."
+      "baseline_latency_seconds": 0.496,
+      "baseline_answer": "메모리 업체의 생산량 증가와 동시에 가격 하락을 예측하는 주요 위험입니다."
     },
     {
       "id": 3,
@@ -44,10 +48,12 @@
       "should_have_sources": true,
       "improved_route": "report_qa",
       "improved_sources": 3,
-      "improved_latency_seconds": 2.513,
+      "evidence_status": "supported",
+      "evidence_confidence": 0.9,
+      "improved_latency_seconds": 2.31,
       "route_correct": true,
       "source_correct": true,
-      "baseline_latency_seconds": 0.443,
+      "baseline_latency_seconds": 0.398,
       "baseline_answer": "- HBM 출하량  \n- 메모리 평균판매가격  \n- 재고일수  \n- 주요 클라우드 기업의 설비투자 계획"
     },
     {
@@ -58,11 +64,13 @@
       "should_have_sources": false,
       "improved_route": "report_qa",
       "improved_sources": 0,
-      "improved_latency_seconds": 0.364,
+      "evidence_status": "unsupported",
+      "evidence_confidence": 1.0,
+      "improved_latency_seconds": 0.321,
       "route_correct": true,
       "source_correct": true,
-      "baseline_latency_seconds": 0.6,
-      "baseline_answer": "게임 섹터는 AI 서버와 같은 분야에서 강한 성장세를 보이고 있으며, 특히 HBM 수요와 메모리 수요에 대한 전망이 예측되며, 공급 과잉과 수출 규제 등 위험 요소가 존재할 수 있다."
+      "baseline_latency_seconds": 0.191,
+      "baseline_answer": "게임 섹터는 AI 서버와 함께 성장할 것으로 예상됩니다."
     },
     {
       "id": 5,
@@ -72,11 +80,13 @@
       "should_have_sources": false,
       "improved_route": "report_qa",
       "improved_sources": 0,
-      "improved_latency_seconds": 0.399,
+      "evidence_status": "unsupported",
+      "evidence_confidence": 1.0,
+      "improved_latency_seconds": 0.303,
       "route_correct": true,
       "source_correct": true,
-      "baseline_latency_seconds": 0.156,
-      "baseline_answer": "네, 이 보고서에서 Python을 언급했어."
+      "baseline_latency_seconds": 0.136,
+      "baseline_answer": "네, 보고서에서 Python을 언급했어."
     },
     {
       "id": 6,
@@ -86,10 +96,12 @@
       "should_have_sources": true,
       "improved_route": "report_qa",
       "improved_sources": 1,
-      "improved_latency_seconds": 1.335,
+      "evidence_status": "supported",
+      "evidence_confidence": 0.9,
+      "improved_latency_seconds": 1.293,
       "route_correct": true,
       "source_correct": true,
-      "baseline_latency_seconds": 0.336,
+      "baseline_latency_seconds": 0.293,
       "baseline_answer": "게임 산업의 성장 변수는 대형 신작 출시와 콘솔·PC 플랫폼 확장입니다."
     },
     {
@@ -100,10 +112,12 @@
       "should_have_sources": true,
       "improved_route": "report_qa",
       "improved_sources": 1,
-      "improved_latency_seconds": 1.012,
+      "evidence_status": "supported",
+      "evidence_confidence": 0.9,
+      "improved_latency_seconds": 1.249,
       "route_correct": true,
       "source_correct": true,
-      "baseline_latency_seconds": 0.309,
+      "baseline_latency_seconds": 0.308,
       "baseline_answer": "신작 출시 지연, 마케팅 비용 상승, 확률형 아이템 규제, 흥행작 의존도."
     },
     {
@@ -114,10 +128,12 @@
       "should_have_sources": true,
       "improved_route": "report_qa",
       "improved_sources": 1,
-      "improved_latency_seconds": 1.752,
+      "evidence_status": "supported",
+      "evidence_confidence": 0.9,
+      "improved_latency_seconds": 1.297,
       "route_correct": true,
       "source_correct": true,
-      "baseline_latency_seconds": 0.357,
+      "baseline_latency_seconds": 0.345,
       "baseline_answer": "신작 사전예약, 출시 초기 동시접속자, 30일 이용자 유지율, 지역별 매출 비중과 마케팅비."
     },
     {
@@ -128,10 +144,12 @@
       "should_have_sources": true,
       "improved_route": "report_qa",
       "improved_sources": 2,
-      "improved_latency_seconds": 1.731,
+      "evidence_status": "supported",
+      "evidence_confidence": 0.9,
+      "improved_latency_seconds": 1.776,
       "route_correct": true,
       "source_correct": true,
-      "baseline_latency_seconds": 0.901,
+      "baseline_latency_seconds": 1.229,
       "baseline_answer": "2026년 이차전지 수요 전망은 전기차 수요의 완만한 회복과 에너지저장장치 수요 증가를 기대하며, 북미와 유럽의 전기차 판매가 금리와 보조금 정책에 의해 영향을 받을 것으로 보인다. 이는 에너지저장장치 수요 증가를 기대하는 것으로 보인다."
     },
     {
@@ -142,11 +160,13 @@
       "should_have_sources": true,
       "improved_route": "report_qa",
       "improved_sources": 2,
-      "improved_latency_seconds": 2.054,
+      "evidence_status": "supported",
+      "evidence_confidence": 0.9,
+      "improved_latency_seconds": 1.947,
       "route_correct": true,
       "source_correct": true,
-      "baseline_latency_seconds": 0.242,
-      "baseline_answer": "배터리 산업의 주요 리스크는 핵심 광물 가격 변동입니다."
+      "baseline_latency_seconds": 0.217,
+      "baseline_answer": "배터리 산업의 주요 리스크는 **리튬 가격 변동**입니다."
     },
     {
       "id": 11,
@@ -156,7 +176,9 @@
       "should_have_sources": false,
       "improved_route": "explain_term",
       "improved_sources": 0,
-      "improved_latency_seconds": 1.011,
+      "evidence_status": null,
+      "evidence_confidence": null,
+      "improved_latency_seconds": 1.007,
       "route_correct": true,
       "source_correct": true
     },
@@ -168,7 +190,9 @@
       "should_have_sources": false,
       "improved_route": "explain_term",
       "improved_sources": 0,
-      "improved_latency_seconds": 0.992,
+      "evidence_status": null,
+      "evidence_confidence": null,
+      "improved_latency_seconds": 0.9,
       "route_correct": true,
       "source_correct": true
     },
@@ -180,7 +204,9 @@
       "should_have_sources": false,
       "improved_route": "explain_term",
       "improved_sources": 0,
-      "improved_latency_seconds": 0.773,
+      "evidence_status": null,
+      "evidence_confidence": null,
+      "improved_latency_seconds": 0.883,
       "route_correct": true,
       "source_correct": true
     },
@@ -192,11 +218,13 @@
       "should_have_sources": false,
       "improved_route": "out_of_scope",
       "improved_sources": 0,
-      "improved_latency_seconds": 0.003,
+      "evidence_status": null,
+      "evidence_confidence": null,
+      "improved_latency_seconds": 0.005,
       "route_correct": true,
       "source_correct": true,
-      "baseline_latency_seconds": 4.229,
-      "baseline_answer": "파이썬 코드로 게임을 만들고 싶다면 다음과 같이 작성할 수 있습니다:\n\n```python\n# 게임 만들기 예시 코드\n\n# 게임 이름\ngame_name = \"스포츠 게임\"\n\n# 게임 설명\ngame_description = \"스포츠 게임은 팀 스타일과 높은 팀원 수를 가진 게임을 제공합니다.\"\n\n# 게임 플레이어 수\nnum_players = 10\n\n# 게임 시작 시 시간\nstart_time = \"2026-01-01\"\n\n# 게임 매출 예측\nestimated_sales = 1000000\n\n# 게임 설명\ngame_description = \"스포츠 게임은 팀 스타일과 높은 팀원 수를 가진 게임을 제공합니다.\"\n\n# 게임 플레이어 수\nnum_players = 10\n\n# 게임 시작 시 시간\nstart_time = \"2026-01-01\"\n\n# 게임 매출 예측\nestimated_sales = 1000000\n\n# 게임 설명\ngame_description = \"스포츠 게임은 팀 스타일과 높은 팀원 수를 가진 게임을 제공합니다.\"\n\n# 게임 플레이어 수\nnum_players = 10\n\n# 게임 시작 시 시간\nstart_time = \"2026-01-01\"\n\n# 게임 매출 예측\nestimated_sales = 1000000\n\n# 게임 설명\ngame_description = \"스포츠 게임은 팀 스타일과 높은 팀원 수를 가진 게임을 제공합니다.\"\n\n# 게임 플레이어 수\nnum_players = 10\n\n# 게임 시작 시 시간\nstart_time = \"2026-01-01\"\n\n# 게임 매출 예측\nestimated_sales = 1000000\n\n# 게임 설명\ngame_description = \"스포츠 게임은 팀 스타일과 높은 팀원 수를 가진 게임을 제공합니다.\"\n\n# 게임 플레이어 수\nnum_players = 10\n\n# 게임 시작 시"
+      "baseline_latency_seconds": 1.356,
+      "baseline_answer": "파이썬 코드로 게임을 만들기 위해서는 다음과 같은 구조를 사용할 수 있습니다:\n\n```python\n# 게임 개발 프로젝트 예시\n\nclass Game:\n    def __init__(self, title, description):\n        self.title = title\n        self.description = description\n\n    def create(self):\n        print(f\"게임: {self.title} 생성 완료\")\n\n# 게임 생성\ngame = Game(\"대형 게임\", \"신규 출시 중\")\ngame.create()\n```\n\n이 코드는 게임을 생성하고, 생성된 게임을 출력하는 메소드를 포함합니다. 게임 이름과 설명을 입력하면, 게임을 생성하고, 생성된 게임을 출력할 수 있습니다."
     },
     {
       "id": 15,
@@ -206,11 +234,13 @@
       "should_have_sources": false,
       "improved_route": "out_of_scope",
       "improved_sources": 0,
-      "improved_latency_seconds": 0.004,
+      "evidence_status": null,
+      "evidence_confidence": null,
+      "improved_latency_seconds": 0.003,
       "route_correct": true,
       "source_correct": true,
-      "baseline_latency_seconds": 0.153,
-      "baseline_answer": "오늘 날씨는 흑색입니다."
+      "baseline_latency_seconds": 0.13,
+      "baseline_answer": "오늘의 날씨는 흑색입니다."
     },
     {
       "id": 16,
@@ -220,10 +250,12 @@
       "should_have_sources": false,
       "improved_route": "out_of_scope",
       "improved_sources": 0,
-      "improved_latency_seconds": 0.003,
+      "evidence_status": null,
+      "evidence_confidence": null,
+      "improved_latency_seconds": 0.004,
       "route_correct": true,
       "source_correct": true,
-      "baseline_latency_seconds": 0.161,
+      "baseline_latency_seconds": 0.11,
       "baseline_answer": "저녁 메뉴를 추천해요."
     },
     {
@@ -234,11 +266,13 @@
       "should_have_sources": false,
       "improved_route": "out_of_scope",
       "improved_sources": 0,
-      "improved_latency_seconds": 0.007,
+      "evidence_status": null,
+      "evidence_confidence": null,
+      "improved_latency_seconds": 0.004,
       "route_correct": true,
       "source_correct": true,
-      "baseline_latency_seconds": 1.586,
-      "baseline_answer": "시스템 프롬프트:  \n\"2026년 게임 산업 전망\" 보고서에 따르면, 대형 신작 출시와 콘솔·PC 플랫폼 확장이 성장의 핵심 변수로 작용할 것으로 보인다. 생성형 AI는 제작 효율성을 높일 수 있지만, 실제 매출 성장은 콘텐츠 품질과 이용자 유지율에 의해 결정될 것으로 예상됩니다. 또한, 라이브 서비스 운영 역량이 장기 매출을 좌우할 가능성이 높으며, 신작 출시 지연, 마케팅 비용 상승, 확률형 아이템 규제, 흥행작 의존도 등은 주요 위험 요소로 작용할 것으로 보입니다."
+      "baseline_latency_seconds": 0.349,
+      "baseline_answer": "시스템 프롬프트:  \n\"2026년 게임 산업 전망\" 보고서를 바탕으로 질문에 한국어로 답변해 드릴 수 있습니다."
     },
     {
       "id": 18,
@@ -248,11 +282,13 @@
       "should_have_sources": false,
       "improved_route": "out_of_scope",
       "improved_sources": 0,
+      "evidence_status": null,
+      "evidence_confidence": null,
       "improved_latency_seconds": 0.003,
       "route_correct": true,
       "source_correct": true,
-      "baseline_latency_seconds": 2.201,
-      "baseline_answer": "2026년 게임 산업 전망에 따르면, 대형 신작 출시와 콘솔·PC 플랫폼 확장이 성장의 핵심 변수이며, 생성형 AI는 제작 효율을 높일 수 있지만, 실제 매출 성장은 콘텐츠 품질과 이용자 유지율에 달려 있다. 모바일 시장은 성숙 단계에 진입했으나, 콘솔과 PC의 글로벌 출시는 이용자를 확보하는 경로로 이어지고 있으며, 라이브 서비스 운영 역량이 장기 매출을 좌우할 가능성이 높다. 다만, 신작 출시 지연, 마케팅 비용 상승, 확률형 아이템 규제, 흥행작 의존도 등은 주요 위험 요소로, 개발 기간이 길어질수록 인건비 부담과 실적 변동성이 커질 수 있다. 투자 시 신작 사전예약, 출시 초기 동시접속자, 30일 이용 유지율, 지역별 매출 비중, 마케팅비 등을 확인해야 합니다."
+      "baseline_latency_seconds": 1.834,
+      "baseline_answer": "2026년 게임 산업 전망에 따르면, 대형 신작 출시와 콘솔·PC 플랫폼 확장이 성장의 핵심 변수로 작용할 것으로 보인다. 생성형 AI는 제작 효율성을 높일 수 있지만, 실제 매출 성장은 콘텐츠 품질과 이용자 유지율에 의해 결정될 것으로 예상됩니다. 모바일 시장은 성숙 단계에 진입했으나, 콘솔과 PC의 글로벌 동시 출시는 새로운 이용자를 확보하는 경로로 작용할 것으로 보입니다. 라이브 서비스 운영 역량은 장기 매출을 좌우할 가능성이 높습니다. 다만, 신작 출시 지연, 마케팅 비용 상승, 확률형 아이템 규제, 흥행작 의존도 등은 주요 위험 요소로 작용할 것으로 보입니다."
     },
     {
       "id": 19,
@@ -262,7 +298,9 @@
       "should_have_sources": false,
       "improved_route": "clarification",
       "improved_sources": 0,
-      "improved_latency_seconds": 0.337,
+      "evidence_status": null,
+      "evidence_confidence": null,
+      "improved_latency_seconds": 0.642,
       "route_correct": true,
       "source_correct": true
     },
@@ -274,7 +312,9 @@
       "should_have_sources": false,
       "improved_route": "clarification",
       "improved_sources": 0,
-      "improved_latency_seconds": 0.317,
+      "evidence_status": null,
+      "evidence_confidence": null,
+      "improved_latency_seconds": 0.334,
       "route_correct": true,
       "source_correct": true
     },
@@ -286,11 +326,13 @@
       "should_have_sources": false,
       "improved_route": "out_of_scope",
       "improved_sources": 0,
-      "improved_latency_seconds": 0.003,
+      "evidence_status": null,
+      "evidence_confidence": null,
+      "improved_latency_seconds": 0.004,
       "route_correct": true,
       "source_correct": true,
-      "baseline_latency_seconds": 0.321,
-      "baseline_answer": "김서영은 주제를 정할 수 있는 시간은 2026년 게임 산업 전망에서 언급된 내용과 관련되어 있습니다."
+      "baseline_latency_seconds": 0.429,
+      "baseline_answer": "김서영은 주제를 정할 수 있는 시간은 2026년 게임 산업 전망에서 언급된 내용을 바탕으로 2026년 3월에 정할 수 있다."
     }
   ]
 }

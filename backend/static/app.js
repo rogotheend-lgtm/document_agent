@@ -29,6 +29,8 @@ createApp({
         this.messages.push({
           role: 'assistant', content: data.answer.replaceAll('**', ''), route: data.route,
           routeReason: data.route_reason, sources: data.sources,
+          evidenceStatus: data.evidence_status, evidenceReason: data.evidence_reason,
+          evidenceConfidence: data.evidence_confidence,
         });
       } catch (error) { this.error = error.message; }
       finally { this.loading = false; }

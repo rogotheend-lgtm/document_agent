@@ -82,6 +82,9 @@ async def chat(payload: ChatRequest):
         answer=result["answer"],
         route=result["route"],
         route_reason=result.get("route_reason", ""),
+        evidence_status=result.get("evidence_status"),
+        evidence_reason=result.get("evidence_reason", ""),
+        evidence_confidence=result.get("evidence_confidence"),
         sources=result.get("sources", []),
         model=app.state.deps.llm.model,
     )
