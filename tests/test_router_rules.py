@@ -22,6 +22,10 @@ def test_weather_and_menu_are_blocked():
     assert is_clear_out_of_scope("저녁 메뉴를 추천해줘")
 
 
+def test_personal_schedule_question_is_blocked():
+    assert is_clear_out_of_scope("김서영은 주제를 언제 정할 수 있을까?")
+
+
 def test_financial_term_explanation_is_detected():
     assert is_term_explanation("EBITDA가 무슨 뜻이야?")
     assert is_term_explanation("영업이익률을 쉽게 설명해줘")

@@ -60,7 +60,12 @@ def normalize_token(token: str) -> str:
 def tokenize(text: str) -> set[str]:
     tokens = re.findall(r"[가-힣A-Za-z0-9]+", text.lower())
     normalized = {normalize_token(token) for token in tokens}
-    return normalized - SEARCH_STOPWORDS
+    # '수', '것' 같은 한 글자 토큰은 거의 모든 문단과 우연히 겹치므로 제외한다.
+    return {
+        token
+        for token in normalized - SEARCH_STOPWORDS
+        if len(token) >= 2
+    }
 
 
 @lru_cache(maxsize=1)

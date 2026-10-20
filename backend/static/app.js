@@ -27,7 +27,7 @@ createApp({
         const data = await response.json();
         if (!response.ok) throw new Error(data.detail || '답변 생성에 실패했습니다.');
         this.messages.push({
-          role: 'assistant', content: data.answer, route: data.route,
+          role: 'assistant', content: data.answer.replaceAll('**', ''), route: data.route,
           routeReason: data.route_reason, sources: data.sources,
         });
       } catch (error) { this.error = error.message; }

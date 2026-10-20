@@ -36,7 +36,7 @@ Vue UI → FastAPI → Singleton LangGraph Agent
 - Dependency Injection: LLM과 검색 함수를 `AgentDeps`로 graph node에 주입
 - Vue 3: 보고서 선택, 채팅, Route 선택 이유와 근거 표시
 - Baseline API: 동일 입력의 개선 전후 비교 지원
-- Evaluation: 20개 질문으로 Route·근거 정확도와 지연시간 측정
+- Evaluation: 21개 질문으로 Route·근거 정확도와 지연시간 측정
 
 ## 프로젝트 구조
 
@@ -52,7 +52,7 @@ backend/
 └── static/              # Vue 3 사용자 UI
 tests/                    # 모델 없이 실행되는 단위/API 테스트
 evaluation/
-├── questions.json       # 평가 질문 20개
+├── questions.json       # 평가 질문 21개
 └── run_eval.py          # Baseline/Improved 실험
 ```
 
@@ -125,17 +125,17 @@ python evaluation/run_eval.py
 
 결과는 `evaluation/results.json`에 저장되며 Route 정확도, 근거 유무 판단 정확도, Baseline/Improved 평균 응답시간과 질문별 결과를 포함합니다. 작은 로컬 모델의 응답은 실행마다 달라질 수 있으므로 발표 자료에는 실행 시각과 모델명을 함께 기록합니다.
 
-### 2026-10-20 실측 결과 (`qwen3:0.6b`, 20문항)
+### 2026-10-20 실측 결과 (`qwen3:0.6b`, 21문항)
 
 | 지표 | 결과 |
 |---|---:|
 | Route 정확도 | 100% |
 | 근거 유무 판단 정확도 | 100% |
-| Improved 평균 지연 | 0.810초 |
-| Baseline 평균 지연 | 0.576초 |
-| 안전성 개선에 따른 추가 지연 | 0.234초 |
+| Improved 평균 지연 | 0.865초 |
+| Baseline 평균 지연 | 0.790초 |
+| 안전성 개선에 따른 추가 지연 | 0.075초 |
 
-첫 평가에서는 Route 75%, 근거 판단 90%였습니다. 실패 사례를 분석해 한국어 조사 정규화, 저정보 stopword 제거, 명백한 용어 설명·범위 밖 요청의 hybrid guard를 추가한 뒤 100%로 개선했습니다. 이 수치는 작은 데모 데이터셋에 대한 결과이며 일반화 성능을 의미하지 않습니다.
+첫 평가에서는 Route 75%, 근거 판단 90%였습니다. 실패 사례를 분석해 한국어 조사 정규화, 저정보 stopword 제거, 명백한 용어 설명·범위 밖 요청의 hybrid guard를 추가했습니다. 이후 새로운 개인 일정 질문에서 다시 실패해 한 글자 공통 token 제거와 회귀 테스트를 추가했고, 최종 21문항에서 100%를 기록했습니다. 이 수치는 작은 데모 데이터셋에 대한 결과이며 일반화 성능을 의미하지 않습니다.
 
 ## Before/After 설명
 
