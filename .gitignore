@@ -7,3 +7,6 @@ __pycache__/
 # 저작권이 있는 실제 보고서는 로컬에서만 사용
 backend/data/reports/metadata.local.json
 backend/data/reports/*.local.md
+
+# 제출·원문 PDF는 외부 링크 또는 로컬 파일로 관리
+*.pdf
