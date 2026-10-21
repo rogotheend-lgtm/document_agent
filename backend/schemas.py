@@ -63,7 +63,7 @@ class Source(BaseModel):
     title: str
     section: str
     content: str
-    relevance_score: int = 0
+    relevance_score: float = 0.0
 
 
 class ChatResponse(BaseModel):

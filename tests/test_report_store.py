@@ -1,4 +1,4 @@
-from backend.report_store import list_reports, search_report, tokenize
+from backend.report_store import list_reports, search_report, split_sections, tokenize
 
 
 def test_demo_reports_are_available():
@@ -32,6 +32,14 @@ def test_personal_question_does_not_match_common_single_character():
 
 def test_unknown_report_returns_no_evidence():
     assert search_report("missing", "주요 위험", 3) == []
+
+
+def test_long_page_is_split_into_smaller_rag_chunks():
+    markdown = "# 보고서\n\n## 1페이지\n" + ("실적 전망 문장입니다.\n" * 150)
+    sections = split_sections(markdown)
+    assert len(sections) > 1
+    assert all(len(section["content"]) <= 1200 for section in sections)
+    assert all(section["section"].startswith("1페이지") for section in sections)
 
 
 def test_synonyms_are_normalized():

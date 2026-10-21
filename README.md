@@ -32,7 +32,7 @@ Vue UI → FastAPI → Singleton LangGraph Agent
 - Supervisor Pattern: Supervisor가 Research·Evidence·Answer 전문 Agent로 작업 위임
 - Structured Router: Pydantic으로 LLM의 경로·이유·보고서 필요 여부 검증
 - Hybrid Guard: 명백한 코드 생성·프롬프트 탈취 요청은 모델 호출 전에 차단
-- Mini RAG: 보고서를 섹션 단위로 검색하고 동의어를 정규화
+- Local RAG: 페이지·문단 청킹, TF-IDF 가중 검색, 금융 동의어 확장
 - Hybrid Evidence Checker: 근거 없음·고점 검색은 규칙으로, 애매한 검색만 Qwen으로 판정
 - FastAPI lifespan: Agent와 Ollama HTTP client를 한 번 생성하고 종료 시 정리
 - Dependency Injection: LLM과 검색 함수를 `AgentDeps`로 graph node에 주입
@@ -195,7 +195,7 @@ python evaluation/run_eval.py
 
 ## 한계와 트레이드오프
 
-- 현재 RAG는 임베딩이 아닌 token overlap 방식이라 의미가 유사한 새 표현을 놓칠 수 있습니다.
+- 현재 RAG는 외부 Vector DB 없이 동작하는 sparse retrieval 방식이므로, 표현 차이가 큰 질문은 놓칠 수 있습니다. 대규모 문서 확장 시 임베딩 기반 Vector DB를 적용할 수 있습니다.
 - `qwen3:0.6b`는 가볍지만 복잡하거나 모호한 질문의 Route를 오분류할 수 있습니다.
 - 규칙 기반 조기 차단은 빠르지만 패턴을 지나치게 넓히면 정상 질문을 차단할 수 있습니다.
 - Router 호출 때문에 Baseline보다 응답 지연이 증가할 수 있습니다.

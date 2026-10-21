@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 
 from backend.main import app
+from backend.schemas import Source
 
 
 def test_health_and_report_endpoints():
@@ -32,3 +33,14 @@ def test_stream_endpoint_rejects_short_question():
     with TestClient(app) as client:
         response = client.post("/api/chat/stream", json={"message": "a"})
         assert response.status_code == 422
+
+
+def test_source_accepts_weighted_rag_score():
+    source = Source(
+        report_id="sample",
+        title="샘플",
+        section="1페이지 · 청크 1",
+        content="근거",
+        relevance_score=2.45,
+    )
+    assert source.relevance_score == 2.45
