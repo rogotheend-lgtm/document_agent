@@ -42,6 +42,26 @@ def test_high_retrieval_score_is_supported_without_llm_call():
     assert llm.call_count == 0
 
 
+def test_explicit_downside_facts_support_risk_question_without_llm_call():
+    llm = FakeLLM()
+    result = asyncio.run(evidence_check_node(
+        {
+            "message": "가장 중요한 위험은 뭐야?",
+            "sources": [
+                {
+                    "section": "1페이지 · 청크 2",
+                    "content": "PPA 지연 우려와 연료전지 비용 증가로 감익이 예상된다.",
+                    "relevance_score": 0.7,
+                }
+            ],
+        },
+        deps=deps_with(llm),
+    ))
+    assert result["evidence_status"] == EvidenceStatus.SUPPORTED
+    assert result["evidence_confidence"] == 0.85
+    assert llm.call_count == 0
+
+
 def test_ambiguous_retrieval_uses_llm_checker():
     llm = FakeLLM(
         '{"status":"unsupported","reason":"질문과 직접 관련이 없습니다.","confidence":0.95}'
@@ -55,4 +75,3 @@ def test_ambiguous_retrieval_uses_llm_checker():
     ))
     assert result["evidence_status"] == EvidenceStatus.UNSUPPORTED
     assert llm.call_count == 1
-

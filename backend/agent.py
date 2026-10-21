@@ -52,6 +52,18 @@ FINANCE_TERMS = (
 )
 
 TERM_EXPLANATION_WORDS = ("뜻", "의미", "설명", "쉽게")
+RISK_QUESTION_WORDS = ("위험", "리스크", "우려", "하방")
+RISK_EVIDENCE_WORDS = (
+    "우려",
+    "지연",
+    "하회",
+    "감익",
+    "하락",
+    "비용 증가",
+    "변동",
+    "축소",
+    "불확실",
+)
 
 
 def is_clear_out_of_scope(message: str) -> bool:
@@ -183,6 +195,17 @@ async def evidence_check_node(state: AgentState, *, deps: AgentDeps) -> dict:
         }
 
     max_score = max(source.get("relevance_score", 0) for source in sources)
+    question = state["message"].lower()
+    combined_evidence = "\n".join(source.get("content", "") for source in sources)
+    if (
+        any(word in question for word in RISK_QUESTION_WORDS)
+        and any(word in combined_evidence for word in RISK_EVIDENCE_WORDS)
+    ):
+        return {
+            "evidence_status": EvidenceStatus.SUPPORTED,
+            "evidence_reason": "보고서에 명시된 우려·지연·하회·감익 요인을 위험 근거로 확인했습니다.",
+            "evidence_confidence": 0.85,
+        }
     if max_score >= 2:
         return {
             "evidence_status": EvidenceStatus.SUPPORTED,
@@ -194,8 +217,11 @@ async def evidence_check_node(state: AgentState, *, deps: AgentDeps) -> dict:
         f"[{source['section']}]\n{source['content']}" for source in sources
     )
     prompt = """당신은 보고서 근거 적합성 검사기입니다.
-질문에 답할 직접적인 정보가 근거에 있는지 판정하세요.
+질문에 답할 정보가 근거에 있는지 판정하세요.
 단어가 하나 겹친다는 이유만으로 supported를 선택하지 마세요.
+질문에 사용된 표현이 그대로 없어도, 보고서에 명시된 사실들을 조합해 답할 수 있으면 supported입니다.
+예를 들어 위험 질문은 우려, 지연, 실적 하회, 감익, 비용 증가처럼 명시된 하방 요인으로 답할 수 있습니다.
+단, 근거에 없는 새로운 위험을 추측해서는 안 됩니다.
 근거가 질문과 무관하면 unsupported, 질문이 모호해 판단하기 어려우면 ambiguous입니다.
 JSON만 출력하세요.
 {"status":"supported","reason":"직접 근거가 있습니다.","confidence":0.9}"""
@@ -240,6 +266,8 @@ async def answer_node(state: AgentState, *, deps: AgentDeps) -> dict:
     )
     prompt = """당신은 전문 리서치 보고서를 일반 사용자가 이해하기 쉽게 설명하는 도우미입니다.
 제공된 근거만 사용하고, 근거에 없는 사실은 추측하지 마세요.
+위험·전망처럼 종합이 필요한 질문은 근거에 명시된 우려, 지연, 하회, 감익 등의 사실을 묶어 설명하세요.
+보고서가 직접 '위험'이라고 부르지 않았다면 '보고서에 언급된 하방 요인'이라고 표현하세요.
 먼저 한 줄 결론을 말하고, 이어서 쉬운 설명을 2~4개 항목으로 작성하세요.
 Markdown 기호 없이 일반 텍스트로 답변하세요.
 투자 권유가 아니라 보고서 이해를 돕는 설명임을 지키세요."""
