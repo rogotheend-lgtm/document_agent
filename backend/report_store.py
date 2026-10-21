@@ -70,14 +70,21 @@ def tokenize(text: str) -> set[str]:
 
 @lru_cache(maxsize=1)
 def list_reports() -> list[dict]:
-    return json.loads((DATA_DIR / "metadata.json").read_text(encoding="utf-8"))
+    reports = json.loads((DATA_DIR / "metadata.json").read_text(encoding="utf-8"))
+    local_metadata = DATA_DIR / "metadata.local.json"
+    if local_metadata.exists():
+        local_reports = json.loads(local_metadata.read_text(encoding="utf-8"))
+        local_ids = {item["id"] for item in local_reports}
+        reports = local_reports + [item for item in reports if item["id"] not in local_ids]
+    return reports
 
 
 def get_report(report_id: str) -> dict | None:
     metadata = next((item for item in list_reports() if item["id"] == report_id), None)
     if not metadata:
         return None
-    path = DATA_DIR / f"{report_id}.md"
+    local_path = DATA_DIR / f"{report_id}.local.md"
+    path = local_path if local_path.exists() else DATA_DIR / f"{report_id}.md"
     if not path.exists():
         return None
     return {**metadata, "content": path.read_text(encoding="utf-8")}

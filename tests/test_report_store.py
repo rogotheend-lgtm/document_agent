@@ -1,8 +1,13 @@
 from backend.report_store import list_reports, search_report, tokenize
 
 
-def test_three_demo_reports_are_available():
-    assert len(list_reports()) == 3
+def test_demo_reports_are_available():
+    report_ids = {report["id"] for report in list_reports()}
+    assert {
+        "sample-semiconductor-2026",
+        "sample-game-2026",
+        "sample-battery-2026",
+    } <= report_ids
 
 
 def test_relevant_risk_section_is_found():

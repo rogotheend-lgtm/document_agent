@@ -55,14 +55,32 @@ backend/
 ├── openai_client.py     # 재사용 가능한 OpenAI HTTP client
 ├── mcp_server.py        # MCP Tool, Resource, Prompt 서버
 ├── report_store.py      # 보고서 로딩, section 검색, token 정규화
+├── ingest_pdf.py        # PDF를 페이지 단위 보고서 데이터로 적재
 ├── schemas.py           # API 및 Router Pydantic schema
-├── data/reports/        # 데모 보고서 3종
+├── data/reports/        # 데모 보고서 + Git에서 제외되는 로컬 보고서
 └── static/              # Vue 3 사용자 UI
 tests/                    # 모델 없이 실행되는 단위/API 테스트
 evaluation/
 ├── questions.json       # 평가 질문 21개
 └── run_eval.py          # Baseline/Improved 실험
 ```
+
+### 실제 PDF 보고서 추가
+
+텍스트가 포함된 PDF는 다음 명령으로 페이지 단위 출처를 유지해 추가할 수 있습니다.
+
+```bash
+python -m backend.ingest_pdf /path/to/report.pdf \
+  --report-id hana-doosan-enerbility-20261016 \
+  --title "두산에너빌리티: 연내 SMR 추가 수주 기대" \
+  --publisher "하나증권" \
+  --category "기업 분석" \
+  --date "2026-10-16"
+```
+
+이미지로만 구성된 PDF는 별도의 OCR 전처리가 필요합니다.
+추출 원문(`*.local.md`)과 로컬 메타데이터(`metadata.local.json`)는 저작권 보호를 위해
+`.gitignore`에 등록되며 공개 저장소에 커밋되지 않습니다.
 
 ## 실행
 

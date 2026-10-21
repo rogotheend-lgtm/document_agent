@@ -11,7 +11,12 @@ def test_health_and_report_endpoints():
 
         reports = client.get("/api/reports")
         assert reports.status_code == 200
-        assert len(reports.json()["reports"]) == 3
+        report_ids = {report["id"] for report in reports.json()["reports"]}
+        assert {
+            "sample-semiconductor-2026",
+            "sample-game-2026",
+            "sample-battery-2026",
+        } <= report_ids
 
         missing = client.get("/api/reports/missing")
         assert missing.status_code == 404
