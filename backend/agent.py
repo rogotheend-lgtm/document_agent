@@ -299,28 +299,29 @@ def choose_evidence_path(state: AgentState) -> str:
 
 def build_graph(deps: AgentDeps):
     graph = StateGraph(AgentState)
-    graph.add_node("router", partial(router_node, deps=deps))
-    graph.add_node("retrieve", partial(retrieve_node, deps=deps))
-    graph.add_node("evidence_check", partial(evidence_check_node, deps=deps))
-    graph.add_node("answer", partial(answer_node, deps=deps))
+    # Supervisor가 요청을 분류하고 목적별 전문 Agent로 작업을 위임한다.
+    graph.add_node("supervisor", partial(router_node, deps=deps))
+    graph.add_node("research_agent", partial(retrieve_node, deps=deps))
+    graph.add_node("evidence_agent", partial(evidence_check_node, deps=deps))
+    graph.add_node("answer_agent", partial(answer_node, deps=deps))
     graph.add_node("refusal", refusal_node)
     graph.add_node("clarification", clarification_node)
     graph.add_node("unsupported_evidence", unsupported_evidence_node)
     graph.add_node("ambiguous_evidence", ambiguous_evidence_node)
-    graph.add_edge(START, "router")
-    graph.add_conditional_edges("router", choose_route, {
-        "report_qa": "retrieve",
-        "explain_term": "answer",
+    graph.add_edge(START, "supervisor")
+    graph.add_conditional_edges("supervisor", choose_route, {
+        "report_qa": "research_agent",
+        "explain_term": "answer_agent",
         "clarification": "clarification",
         "out_of_scope": "refusal",
     })
-    graph.add_edge("retrieve", "evidence_check")
-    graph.add_conditional_edges("evidence_check", choose_evidence_path, {
-        "supported": "answer",
+    graph.add_edge("research_agent", "evidence_agent")
+    graph.add_conditional_edges("evidence_agent", choose_evidence_path, {
+        "supported": "answer_agent",
         "unsupported": "unsupported_evidence",
         "ambiguous": "ambiguous_evidence",
     })
-    graph.add_edge("answer", END)
+    graph.add_edge("answer_agent", END)
 
     graph.add_edge("refusal", END)
     graph.add_edge("clarification", END)

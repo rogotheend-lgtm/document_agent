@@ -13,15 +13,15 @@ Improved Agent는 다음 흐름을 사용합니다.
 ```text
 Vue UI → FastAPI → Singleton LangGraph Agent
                          ↓
-                      Router
+                    Supervisor
         ┌────────────────┼──────────────────┐
         ↓                ↓                  ↓
    report_qa       explain_term      clarification/out_of_scope
         ↓                ↓                  ↓
-     retrieve          answer          clarify/refuse
+  Research Agent    Answer Agent       clarify/refuse
         ↓
-   Evidence Checker
-     ├─ supported → Qwen 답변 + 출처
+   Evidence Agent
+     ├─ supported → 답변 + 출처
      ├─ unsupported → 안전한 안내
      └─ ambiguous → 질문 구체화 요청
 ```
@@ -29,13 +29,18 @@ Vue UI → FastAPI → Singleton LangGraph Agent
 ## 핵심 기능
 
 - LangGraph: `report_qa`, `explain_term`, `clarification`, `out_of_scope` 조건부 경로
-- Structured Router: Pydantic으로 Qwen의 경로·이유·보고서 필요 여부 검증
+- Supervisor Pattern: Supervisor가 Research·Evidence·Answer 전문 Agent로 작업 위임
+- Structured Router: Pydantic으로 LLM의 경로·이유·보고서 필요 여부 검증
 - Hybrid Guard: 명백한 코드 생성·프롬프트 탈취 요청은 모델 호출 전에 차단
 - Mini RAG: 보고서를 섹션 단위로 검색하고 동의어를 정규화
 - Hybrid Evidence Checker: 근거 없음·고점 검색은 규칙으로, 애매한 검색만 Qwen으로 판정
 - FastAPI lifespan: Agent와 Ollama HTTP client를 한 번 생성하고 종료 시 정리
 - Dependency Injection: LLM과 검색 함수를 `AgentDeps`로 graph node에 주입
 - Vue 3: 보고서 선택, 채팅, Route 선택 이유와 근거 표시
+- SSE Streaming: LangGraph 노드별 진행 상태와 최종 답변을 이벤트로 전송
+- MCP Server: 보고서 검색 Tool, 원문 Resource, 근거 기반 Prompt 제공
+- LangSmith: 환경변수 설정 시 LangGraph 실행 trace를 프로젝트에 기록
+- Model Provider: 환경변수로 Ollama와 OpenAI를 교체
 - Baseline API: 동일 입력의 개선 전후 비교 지원
 - Evaluation: 21개 질문으로 Route·근거 정확도와 지연시간 측정
 
@@ -47,6 +52,8 @@ backend/
 ├── agent.py             # LangGraph state, nodes, conditional edges
 ├── deps.py              # Agent dependency injection
 ├── ollama.py            # 재사용 가능한 Ollama HTTP client
+├── openai_client.py     # 재사용 가능한 OpenAI HTTP client
+├── mcp_server.py        # MCP Tool, Resource, Prompt 서버
 ├── report_store.py      # 보고서 로딩, section 검색, token 정규화
 ├── schemas.py           # API 및 Router Pydantic schema
 ├── data/reports/        # 데모 보고서 3종
@@ -87,6 +94,24 @@ uvicorn backend.main:app --reload --port 8200
 
 `/health`의 `creation_count=1`과 변하지 않는 `instance_id`로 서버 수명 동안 Agent 하나가 재사용되는지 확인할 수 있습니다.
 
+OpenAI 또는 LangSmith를 사용할 때는 `.env`에 필요한 값을 설정합니다.
+
+```dotenv
+LLM_PROVIDER=openai
+OPENAI_API_KEY=...
+OPENAI_MODEL=gpt-4.1-mini
+
+LANGSMITH_TRACING=true
+LANGSMITH_API_KEY=...
+LANGSMITH_PROJECT=research-report-agent
+```
+
+MCP 서버는 별도 터미널에서 stdio transport로 실행할 수 있습니다.
+
+```bash
+PYTHONPATH=. python -m backend.mcp_server
+```
+
 ## REST API
 
 | Method | Path | 설명 |
@@ -95,6 +120,7 @@ uvicorn backend.main:app --reload --port 8200
 | GET | `/api/reports` | 보고서 목록 |
 | GET | `/api/reports/{report_id}` | 보고서 상세 |
 | POST | `/api/chat` | Router·RAG·Evidence Gate가 적용된 Agent |
+| POST | `/api/chat/stream` | 노드 진행 상태와 최종 답변을 전송하는 SSE Agent |
 | POST | `/api/chat/baseline` | 비교용 단순 Qwen 호출 |
 
 요청 예시:
@@ -114,7 +140,7 @@ source .venv/bin/activate
 pytest -q
 ```
 
-테스트는 보고서 검색, 동의어 정규화, 명백한 범위 밖 요청, API validation과 singleton health를 확인합니다. LLM 응답의 비결정성 때문에 단위 테스트는 실제 Ollama 답변 문구에 의존하지 않습니다.
+테스트는 보고서 검색, 동의어 정규화, 명백한 범위 밖 요청, API validation, singleton health와 MCP capability를 확인합니다. LLM 응답의 비결정성 때문에 단위 테스트는 실제 답변 문구에 의존하지 않습니다.
 
 ## Before/After 평가
 
@@ -162,10 +188,10 @@ python evaluation/run_eval.py
 ## 향후 개선(Optional)
 
 1. embedding 기반 hybrid search 및 reranking
-2. 보고서 목록·검색 기능을 별도 MCP Server로 분리
+2. MCP Client를 Agent에 연결해 내부 검색 함수를 원격 Tool 호출로 교체
 3. 여러 기관 보고서의 공통점·차이점 비교
-4. SSE 기반 Router·검색·생성 진행 상태 표시
-5. LangSmith trace, dataset evaluation과 관리자 지표
+4. SSE를 노드 이벤트에서 token 단위 생성 스트리밍으로 확장
+5. LangSmith dataset 및 LLM-as-a-Judge 평가 추가
 6. PDF 표·차트 및 페이지 단위 출처 처리
 
 ## 학습 포인트

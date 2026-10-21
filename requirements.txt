@@ -5,3 +5,5 @@ langgraph>=1.0
 pydantic>=2.0
 python-dotenv>=1.0
 pytest>=8.0
+mcp[cli]>=2.0
+langsmith>=0.4

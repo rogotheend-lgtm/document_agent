@@ -22,3 +22,8 @@ def test_short_question_is_rejected_before_model_call():
         response = client.post("/api/chat", json={"message": "a"})
         assert response.status_code == 422
 
+
+def test_stream_endpoint_rejects_short_question():
+    with TestClient(app) as client:
+        response = client.post("/api/chat/stream", json={"message": "a"})
+        assert response.status_code == 422

@@ -53,7 +53,7 @@
               </blockquote>
             </details>
           </article>
-          <p v-if="loading" class="thinking">보고서를 읽고 답변을 구성하고 있습니다…</p>
+          <p v-if="loading" class="thinking">실행 중 · {{ progress }}</p>
         </div>
 
         <form @submit.prevent="ask">

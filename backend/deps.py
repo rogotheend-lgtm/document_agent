@@ -1,8 +1,20 @@
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Protocol
 
-from backend.ollama import OllamaClient
+
+class LLMClient(Protocol):
+    model: str
+
+    async def chat(
+        self,
+        messages: list[dict],
+        temperature: float = 0.1,
+    ) -> str:
+        ...
+
+    async def aclose(self) -> None:
+        ...
 
 
 @dataclass(frozen=True)
@@ -12,6 +24,5 @@ class AgentDeps:
     노드가 LLM이나 저장소를 직접 생성하지 않게 하여 테스트와 교체를 쉽게 한다.
     """
 
-    llm: OllamaClient
+    llm: LLMClient
     search_report: Callable[[str, str, int], list[dict[str, Any]]]
-

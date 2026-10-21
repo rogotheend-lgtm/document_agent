@@ -1,4 +1,5 @@
 import json
+import os
 import statistics
 import time
 from datetime import datetime, timezone
@@ -8,7 +9,8 @@ import httpx
 
 
 ROOT = Path(__file__).resolve().parent
-BASE_URL = "http://127.0.0.1:8200"
+BASE_URL = os.getenv("EVAL_BASE_URL", "http://127.0.0.1:8200")
+OUTPUT_FILE = os.getenv("EVAL_OUTPUT", "results.json")
 
 
 def post(client: httpx.Client, path: str, case: dict) -> tuple[dict, float]:
@@ -63,7 +65,7 @@ def run() -> None:
         "baseline_average_latency_seconds": round(statistics.mean(baseline_latencies), 3),
     }
     output = {"summary": summary, "cases": rows}
-    (ROOT / "results.json").write_text(
+    (ROOT / OUTPUT_FILE).write_text(
         json.dumps(output, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
